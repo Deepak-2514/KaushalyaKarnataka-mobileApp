@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import kotlin.random.Random
 
 @Composable
@@ -17,7 +18,7 @@ fun GalaxyBackground(
     content: @Composable () -> Unit
 ) {
     val starPositions = remember {
-        List(60) {
+        List(40) {
             Offset(Random.nextFloat(), Random.nextFloat())
         }
     }
@@ -27,19 +28,15 @@ fun GalaxyBackground(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0B0F1A),
-                        Color(0xFF10182A),
-                        Color(0xFF0B0F1A),
-                    )
+                    colors = KaushalyaColors.BackgroundGradient
                 )
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             starPositions.forEach { pos ->
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.35f),
-                    radius = 1.2f,
+                    color = Color.White.copy(alpha = 0.15f),
+                    radius = 1.5f,
                     center = Offset(pos.x * size.width, pos.y * size.height)
                 )
             }

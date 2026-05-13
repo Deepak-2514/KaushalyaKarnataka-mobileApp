@@ -1,5 +1,7 @@
 package com.kaushalyakarnataka.app.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -7,20 +9,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.ElectricBolt
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.data.UserProfile
@@ -61,26 +70,32 @@ fun HomeScreen(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 16.dp)
         ) {
             Spacer(Modifier.height(48.dp))
             
-            HeaderSection(profile, strings, language, onToggleLanguage, onRefresh = { tick++ })
+            HeaderSection(profile, strings, onToggleLanguage, onRefresh = { tick++ })
 
             Spacer(Modifier.height(24.dp))
 
             KKTextField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = strings.searchPlaceholder,
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) }
+                placeholder = "Search electricians, plumbers...",
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                trailingIcon = {
+                    Row {
+                        IconButton(onClick = {}) { Icon(Icons.Rounded.Mic, contentDescription = null) }
+                        IconButton(onClick = {}) { Icon(Icons.Rounded.FilterList, contentDescription = null) }
+                    }
+                }
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(24.dp))
 
             CategorySelector(category, strings, onCategorySelected = { category = it })
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
             val filtered = workers.filter { w ->
                 val q = search.lowercase()
@@ -95,13 +110,18 @@ fun HomeScreen(
             } else if (filtered.isEmpty()) {
                 EmptyState(strings.noWorkers)
             } else {
+                Text(
+                    text = "Top Professionals",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 32.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(filtered, key = { it.userId }) { worker ->
-                        WorkerRowCard(strings, worker, onOpenWorker)
+                        WorkerHorizontalCard(strings, worker, onOpenWorker)
                     }
                 }
             }
@@ -113,42 +133,42 @@ fun HomeScreen(
 private fun HeaderSection(
     profile: UserProfile?,
     strings: Strings,
-    language: AppLanguage,
     onToggleLanguage: () -> Unit,
     onRefresh: () -> Unit
 ) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            AsyncImage(
+                model = profile?.profileImage,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+        Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            val first = profile?.name?.split(" ")?.firstOrNull().orEmpty()
+            val first = profile?.name?.split(" ")?.firstOrNull() ?: "User"
             Text(
                 "${strings.hello}, $first",
-                style = MaterialTheme.typography.headlineMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 strings.tagline,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Row {
-            IconButton(onClick = onToggleLanguage) {
-                Icon(
-                    Icons.Outlined.Language,
-                    contentDescription = if (language == AppLanguage.EN) "ಕನ್ನಡ" else "English",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            IconButton(onClick = onRefresh) {
-                Icon(Icons.Outlined.Refresh, contentDescription = strings.refresh, tint = MaterialTheme.colorScheme.primary)
-            }
+        IconButton(onClick = onRefresh) {
+            Icon(Icons.Rounded.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -163,39 +183,92 @@ private fun CategorySelector(
         Modifier
             .horizontalScroll(rememberScrollState())
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         HOME_CATEGORIES.forEach { cat ->
             val isSelected = (selectedCategory == null && cat == "All") || selectedCategory == cat
-            FilterChip(
-                selected = isSelected,
-                onClick = {
-                    onCategorySelected(if (cat == "All") null else cat)
-                },
-                label = { Text(strings.categories.label(cat)) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                )
+            CategoryChip(
+                label = strings.categories.label(cat),
+                isSelected = isSelected,
+                onClick = { onCategorySelected(if (cat == "All") null else cat) },
+                icon = getCategoryIcon(cat)
             )
         }
     }
 }
 
 @Composable
+private fun CategoryChip(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    icon: ImageVector?
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon, 
+                    contentDescription = null, 
+                    modifier = Modifier.size(18.dp),
+                    tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.width(8.dp))
+            }
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+            )
+        }
+    }
+}
+
+private fun getCategoryIcon(cat: String): ImageVector? = when (cat) {
+    "Electrician" -> Icons.Default.ElectricBolt
+    "Plumber" -> Icons.Outlined.WaterDrop
+    "Carpenter" -> Icons.Outlined.Handyman
+    "Painter" -> Icons.Outlined.Brush
+    "Cleaner" -> Icons.Outlined.CleaningServices
+    "Gardener" -> Icons.Outlined.Yard
+    "Other" -> Icons.Outlined.Category
+    else -> null
+}
+
+@Composable
 private fun EmptyState(message: String) {
-    GlassCard(Modifier.fillMaxWidth()) {
+    Column(
+        Modifier.fillMaxWidth().padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            Icons.Outlined.SearchOff, 
+            contentDescription = null, 
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        )
+        Spacer(Modifier.height(16.dp))
         Text(
             message,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
     }
 }
 
 @Composable
-private fun WorkerRowCard(strings: Strings, worker: UserProfile, onOpenWorker: (String) -> Unit) {
+private fun WorkerHorizontalCard(strings: Strings, worker: UserProfile, onOpenWorker: (String) -> Unit) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = { onOpenWorker(worker.userId) },
@@ -204,54 +277,83 @@ private fun WorkerRowCard(strings: Strings, worker: UserProfile, onOpenWorker: (
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            AsyncImage(
-                model = worker.profileImage,
-                contentDescription = worker.name,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-            )
-            Column(Modifier.weight(1f)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(
-                        worker.name,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+            Box {
+                AsyncImage(
+                    model = worker.profileImage,
+                    contentDescription = worker.name,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop,
+                )
+                Surface(
+                    modifier = Modifier.align(Alignment.TopStart).padding(6.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color.Black.copy(alpha = 0.6f)
+                ) {
                     Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Icon(
-                            Icons.Outlined.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(16.dp)
-                        )
+                        Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(12.dp))
                         Text(
-                            if (worker.rating > 0) String.format("%.1f", worker.rating) else strings.newLabel,
-                            style = MaterialTheme.typography.labelLarge,
+                            if (worker.rating > 0) String.format("%.1f", worker.rating) else "New",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
                     }
+                }
+            }
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        worker.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Icon(Icons.Outlined.Verified, contentDescription = "Verified", tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
                 }
                 Text(
                     strings.categoryTitle(worker.category ?: ""),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.SemiBold
                 )
-                Text(
-                    worker.location.ifBlank { strings.locationUnknown },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Outlined.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        worker.location.ifBlank { strings.locationUnknown },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("Jobs Done", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${worker.jobsCompleted}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                    }
+                    Button(
+                        onClick = { onOpenWorker(worker.userId) },
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text("Hire Now", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }

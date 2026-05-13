@@ -2,8 +2,9 @@ package com.kaushalyakarnataka.app.ui.screens
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
@@ -12,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -62,9 +65,7 @@ fun LoginScreen(
             } else {
                 scope.launch {
                     runCatching { repo.signInWithGoogleIdToken(token) }
-                        .onSuccess { 
-                            onSignedIn() 
-                        }
+                        .onSuccess { onSignedIn() }
                         .onFailure { 
                             isSigningIn = false
                             onMessage(it.message ?: "Login failed") 
@@ -73,19 +74,9 @@ fun LoginScreen(
             }
         } catch (e: ApiException) {
             isSigningIn = false
-            val msg = when (e.statusCode) {
-                12501 -> "Sign-in cancelled."
-                7 -> "Network error. Try again."
-                10 -> "Developer Error (10): Likely SHA-1 mismatch in Firebase."
-                else -> "Login failed (Code: ${e.statusCode})."
-            }
-            onMessage(msg)
+            onMessage("Login failed (Code: ${e.statusCode})")
         }
     }
-
-    val webIdConfigured = BuildConfig.GOOGLE_WEB_CLIENT_ID.isNotBlank()
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    val outlineMuted = MaterialTheme.colorScheme.outline.copy(alpha = 0.55f)
 
     GalaxyBackground {
         Column(
@@ -95,106 +86,93 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                Icons.Outlined.AutoAwesome,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(80.dp),
-            )
-            Spacer(Modifier.height(24.dp))
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(32.dp))
+                    .background(Brush.linearGradient(listOf(Color(0xFF4F46E5), Color(0xFF8B5CF6)))),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Outlined.AutoAwesome,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp),
+                )
+            }
+            
+            Spacer(Modifier.height(32.dp))
+            
             Text(
                 strings.appName,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(8.dp))
             Text(
                 strings.tagline,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp)
             )
-            Spacer(Modifier.height(48.dp))
+            
+            Spacer(Modifier.height(64.dp))
 
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    OutlinedButton(
-                        enabled = !isSigningIn && activity != null && webIdConfigured,
+                    Text(
+                        "Welcome Back",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Sign in to continue to your professional marketplace",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                    )
+
+                    Button(
+                        enabled = !isSigningIn && activity != null,
                         onClick = {
-                            val client = googleSignInClient ?: return@OutlinedButton
+                            val client = googleSignInClient ?: return@Button
                             isSigningIn = true
                             launcher.launch(client.signInIntent)
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = Color.White,
-                            disabledContentColor = Color.White.copy(alpha = 0.38f),
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+                        )
                     ) {
-                        Box(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(
-                                modifier = Modifier.alpha(if (isSigningIn) 0f else 1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = Color.White,
-                                ) {
-                                    Text(
-                                        "G",
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color(0xFF4285F4),
-                                        fontWeight = FontWeight.Black
-                                    )
+                        if (isSigningIn) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(24.dp)) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text("G", color = Color(0xFF4285F4), fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                    }
                                 }
-                                Spacer(Modifier.size(16.dp))
-                                Text(
-                                    strings.googleSignIn,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            }
-                            
-                            if (isSigningIn) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text("Continue with Google", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                             }
                         }
-                    }
-
-                    if (!webIdConfigured) {
-                        Spacer(Modifier.height(20.dp))
-                        Text(
-                            "Google sign-in isn't configured for this install yet.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = muted,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
                     }
                 }
             }
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(48.dp))
+            
             Text(
-                strings.safeLogin,
-                style = MaterialTheme.typography.labelMedium,
-                color = outlineMuted,
+                "By signing in, you agree to our Terms and Privacy Policy",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium
+                modifier = Modifier.padding(horizontal = 20.dp)
             )
         }
     }

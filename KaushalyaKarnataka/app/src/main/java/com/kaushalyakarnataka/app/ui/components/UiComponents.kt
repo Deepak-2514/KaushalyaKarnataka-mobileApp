@@ -32,11 +32,11 @@ fun GlassCard(
             shape = shape,
             color = containerColor,
             border = borderStroke,
-            tonalElevation = 2.dp,
-            shadowElevation = 4.dp
+            shadowElevation = 8.dp,
+            tonalElevation = 0.dp
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(16.dp),
                 content = content
             )
         }
@@ -46,11 +46,11 @@ fun GlassCard(
             shape = shape,
             color = containerColor,
             border = borderStroke,
-            tonalElevation = 2.dp,
-            shadowElevation = 4.dp
+            shadowElevation = 8.dp,
+            tonalElevation = 0.dp
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(16.dp),
                 content = content
             )
         }
@@ -81,9 +81,9 @@ fun GradientPrimaryButton(
         contentPadding = PaddingValues(0.dp),
     ) {
         val brush = if (enabled) {
-            Brush.horizontalGradient(listOf(Color(0xFF9333EA), Color(0xFF6366F1)))
+            Brush.horizontalGradient(listOf(Color(0xFF4F46E5), Color(0xFF8B5CF6)))
         } else {
-            Brush.horizontalGradient(listOf(Color(0xFF4B2375), Color(0xFF32357A)))
+            Brush.horizontalGradient(listOf(Color(0xFF2E2A85), Color(0xFF4C3286)))
         }
 
         Box(
@@ -101,9 +101,9 @@ fun GradientPrimaryButton(
             } else {
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.labelLarge.copy(
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
+                        letterSpacing = 0.5.sp
                     )
                 )
             }
@@ -120,14 +120,14 @@ fun ScreenLoading(modifier: Modifier = Modifier, label: String) {
         ) {
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp,
-                modifier = Modifier.size(48.dp)
+                strokeWidth = 3.dp,
+                modifier = Modifier.size(40.dp)
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             )
         }
     }
@@ -151,16 +151,18 @@ fun KKTextField(
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
         label = label?.let { { Text(it) } },
-        placeholder = placeholder?.let { { Text(it) } },
+        placeholder = placeholder?.let { { Text(it, style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))) } },
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         singleLine = singleLine,
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
             focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+            unfocusedBorderColor = Color.Transparent,
             focusedLabelColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
