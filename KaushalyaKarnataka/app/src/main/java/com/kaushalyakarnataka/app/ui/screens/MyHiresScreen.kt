@@ -32,8 +32,8 @@ import com.kaushalyakarnataka.app.data.RequestStatus
 import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.ui.Strings
 import com.kaushalyakarnataka.app.ui.categoryTitle
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -74,13 +74,16 @@ fun MyHiresScreen(
     val scope = rememberCoroutineScope()
     val fmt = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(56.dp))
             Text(
                 text = strings.myHires,
                 style = MaterialTheme.typography.displayLarge,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                color = KaushalyaColors.TextPrimary,
+                modifier = Modifier.padding(horizontal = 20.dp)
             )
             
             Spacer(Modifier.height(24.dp))
@@ -88,13 +91,13 @@ fun MyHiresScreen(
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
+                contentColor = KaushalyaColors.Primary,
                 divider = {},
                 indicator = { tabPositions ->
                     if (selectedTab < tabPositions.size) {
                         TabRowDefaults.SecondaryIndicator(
                             Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = MaterialTheme.colorScheme.primary
+                            color = KaushalyaColors.Primary
                         )
                     }
                 }
@@ -107,7 +110,8 @@ fun MyHiresScreen(
                             Text(
                                 title,
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (selectedTab == index) FontWeight.SemiBold else FontWeight.Normal,
+                                color = if (selectedTab == index) KaushalyaColors.TextPrimary else KaushalyaColors.TextSecondary
                             )
                         }
                     )
@@ -116,7 +120,7 @@ fun MyHiresScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp, 24.dp, 16.dp, 100.dp),
+                contentPadding = PaddingValues(20.dp, 28.dp, 20.dp, 120.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (filteredHires.isEmpty()) {
@@ -181,7 +185,7 @@ private fun HireModernCard(
             AsyncImage(
                 model = worker?.profileImage,
                 contentDescription = null,
-                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(14.dp)),
                 contentScale = ContentScale.Crop
             )
             Column(Modifier.weight(1f)) {
@@ -190,6 +194,7 @@ private fun HireModernCard(
                         worker?.name ?: strings.loading,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
+                        color = KaushalyaColors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -197,36 +202,36 @@ private fun HireModernCard(
                 }
                 Text(
                     strings.categoryTitle(worker?.category ?: ""),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = KaushalyaColors.Primary,
                 )
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.size(12.dp), tint = KaushalyaColors.TextMuted)
                     Text(
                         fmt.format(hire.createdAt?.toDate() ?: Date()),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KaushalyaColors.TextMuted
                     )
                 }
             }
         }
         
-        HorizontalDivider(Modifier.padding(vertical = 16.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline)
+        HorizontalDivider(Modifier.padding(vertical = 16.dp), thickness = 0.5.dp, color = KaushalyaColors.Border)
         
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column {
-                Text("Service Status", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Service Status", style = MaterialTheme.typography.labelSmall, color = KaushalyaColors.TextMuted)
                 Text(
                     text = when(hire.status) {
-                        RequestStatus.pending -> "Waiting for confirmation"
-                        RequestStatus.accepted -> "Worker is assigned"
+                        RequestStatus.pending -> "Awaiting confirmation"
+                        RequestStatus.accepted -> "Worker arriving"
                         RequestStatus.completed -> "Service completed"
-                        RequestStatus.rejected -> "Request declined"
+                        RequestStatus.rejected -> "Request cancelled"
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = KaushalyaColors.TextPrimary
                 )
             }
             
@@ -234,21 +239,22 @@ private fun HireModernCard(
                 if (hire.status == RequestStatus.accepted) {
                     IconButton(
                         onClick = onChat,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape)
+                        modifier = Modifier.background(KaushalyaColors.Primary.copy(alpha = 0.1f), CircleShape)
                     ) {
-                        Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, tint = KaushalyaColors.Primary)
                     }
                 }
                 if (showRate) {
                     Button(
                         onClick = onRate,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = KaushalyaColors.Primary),
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
                         Icon(Icons.Outlined.Star, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Rate", style = MaterialTheme.typography.labelLarge)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Rate Expert", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
@@ -259,15 +265,15 @@ private fun HireModernCard(
 @Composable
 private fun StatusBadge(status: RequestStatus, strings: Strings) {
     val (color, text) = when (status) {
-        RequestStatus.pending -> Color(0xFFF59E0B) to strings.pendingStatus
-        RequestStatus.accepted -> Color(0xFF3B82F6) to strings.acceptedStatus
-        RequestStatus.completed -> Color(0xFF10B981) to strings.completed
-        RequestStatus.rejected -> Color(0xFFEF4444) to strings.rejectedStatus
+        RequestStatus.pending -> KaushalyaColors.Warning to strings.pendingStatus
+        RequestStatus.accepted -> KaushalyaColors.Primary to strings.acceptedStatus
+        RequestStatus.completed -> KaushalyaColors.Success to strings.completed
+        RequestStatus.rejected -> KaushalyaColors.Error to strings.rejectedStatus
     }
     Surface(
-        color = color.copy(alpha = 0.15f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(0.5.dp, color.copy(alpha = 0.5f))
+        color = color.copy(alpha = 0.1f),
+        shape = RoundedCornerShape(6.dp),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.3f))
     ) {
         Text(
             text = text,
@@ -282,17 +288,17 @@ private fun StatusBadge(status: RequestStatus, strings: Strings) {
 @Composable
 private fun EmptyHiresState(message: String) {
     Column(
-        Modifier.fillMaxWidth().padding(top = 60.dp),
+        Modifier.fillMaxWidth().padding(top = 80.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             Icons.Outlined.History, 
             contentDescription = null, 
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+            modifier = Modifier.size(64.dp),
+            tint = KaushalyaColors.TextMuted.copy(alpha = 0.3f)
         )
-        Spacer(Modifier.height(16.dp))
-        Text(message, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(20.dp))
+        Text(message, style = MaterialTheme.typography.titleLarge, color = KaushalyaColors.TextSecondary, textAlign = TextAlign.Center)
     }
 }
 
@@ -307,7 +313,8 @@ private fun RatingDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Rate Service", fontWeight = FontWeight.Bold) },
+        containerColor = KaushalyaColors.Elevated,
+        title = { Text("Rate the Expert", fontWeight = FontWeight.Bold, color = KaushalyaColors.TextPrimary) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -317,7 +324,7 @@ private fun RatingDialog(
                             Icon(
                                 if (v <= stars) Icons.Filled.Star else Icons.Outlined.Star,
                                 contentDescription = null,
-                                tint = if (v <= stars) Color(0xFFFBBF24) else MaterialTheme.colorScheme.outline,
+                                tint = if (v <= stars) KaushalyaColors.Warning else KaushalyaColors.TextMuted,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -327,20 +334,27 @@ private fun RatingDialog(
                     value = comment,
                     onValueChange = { comment = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Tell us about your experience...") },
+                    placeholder = { Text("How was the service?", color = KaushalyaColors.TextMuted) },
                     minLines = 3,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = KaushalyaColors.Secondary,
+                        unfocusedContainerColor = KaushalyaColors.Secondary,
+                        focusedTextColor = KaushalyaColors.TextPrimary,
+                        unfocusedTextColor = KaushalyaColors.TextPrimary,
+                        focusedBorderColor = KaushalyaColors.Primary
+                    )
                 )
             }
         },
         confirmButton = {
-            Button(onClick = { onSubmit(stars, comment) }) {
+            Button(onClick = { onSubmit(stars, comment) }, colors = ButtonDefaults.buttonColors(containerColor = KaushalyaColors.Primary)) {
                 Text("Submit Review")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(strings.cancel)
+                Text(strings.cancel, color = KaushalyaColors.TextSecondary)
             }
         },
     )

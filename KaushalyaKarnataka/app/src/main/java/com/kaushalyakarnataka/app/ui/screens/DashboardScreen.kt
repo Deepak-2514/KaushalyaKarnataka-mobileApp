@@ -2,15 +2,19 @@ package com.kaushalyakarnataka.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.rounded.Assignment
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,9 +32,9 @@ import com.kaushalyakarnataka.app.data.JobRequest
 import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.ui.Strings
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
 import com.kaushalyakarnataka.app.ui.components.GradientPrimaryButton
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,23 +60,24 @@ fun DashboardScreen(
         }
     }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(20.dp),
+            contentPadding = PaddingValues(20.dp, 56.dp, 20.dp, 120.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item {
-                Spacer(Modifier.height(28.dp))
                 Text(
                     text = strings.dashboard,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.displayLarge,
+                    color = KaushalyaColors.TextPrimary
                 )
                 Text(
-                    text = strings.activeJobs,
+                    text = "Overview of your professional activity",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = KaushalyaColors.TextSecondary
                 )
             }
 
@@ -81,12 +86,16 @@ fun DashboardScreen(
                     StatCard(
                         modifier = Modifier.weight(1f),
                         label = strings.jobsDone,
-                        value = "${profile.jobsCompleted}"
+                        value = "${profile.jobsCompleted}",
+                        icon = Icons.Rounded.Assignment,
+                        color = KaushalyaColors.Primary
                     )
                     StatCard(
                         modifier = Modifier.weight(1f),
                         label = strings.myRating,
-                        value = if (profile.rating > 0) String.format("%.1f", profile.rating) else strings.newLabel
+                        value = if (profile.rating > 0) String.format("%.1f", profile.rating) else strings.newLabel,
+                        icon = Icons.Rounded.Star,
+                        color = KaushalyaColors.Warning
                     )
                 }
             }
@@ -105,19 +114,20 @@ fun DashboardScreen(
                             Text(
                                 text = strings.jobRequests,
                                 style = MaterialTheme.typography.titleMedium,
+                                color = KaushalyaColors.TextPrimary,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = strings.checkNewRequests,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = KaushalyaColors.TextMuted
                             )
                         }
                         Icon(
                             imageVector = Icons.Outlined.CheckCircle,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp)
+                            tint = KaushalyaColors.Primary,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
@@ -125,8 +135,9 @@ fun DashboardScreen(
 
             item {
                 Text(
-                    text = "${strings.activeJobs} (${jobs.size})",
+                    text = "Active Jobs In-Progress",
                     style = MaterialTheme.typography.titleLarge,
+                    color = KaushalyaColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -138,12 +149,7 @@ fun DashboardScreen(
                         Text(
                             text = strings.noActiveJobs,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = strings.newJobsWillAppear,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = KaushalyaColors.TextMuted
                         )
                     }
                 }
@@ -179,19 +185,32 @@ fun DashboardScreen(
 }
 
 @Composable
-private fun StatCard(modifier: Modifier, label: String, value: String) {
+private fun StatCard(modifier: Modifier, label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
     GlassCard(modifier = modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(color.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+            }
+            Column {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = KaushalyaColors.TextPrimary
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = KaushalyaColors.TextMuted
+                )
+            }
+        }
     }
 }
 
@@ -216,13 +235,14 @@ private fun ActiveJobCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape),
+                        .clip(RoundedCornerShape(14.dp)),
                     contentScale = ContentScale.Crop,
                 )
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = customer?.name ?: strings.customer,
                         style = MaterialTheme.typography.titleMedium,
+                        color = KaushalyaColors.TextPrimary,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -230,7 +250,7 @@ private fun ActiveJobCard(
                     Text(
                         text = customer?.location?.ifBlank { strings.locationUnknown } ?: strings.locationUnknown,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = KaushalyaColors.TextMuted,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -238,22 +258,18 @@ private fun ActiveJobCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val phone = customer?.phone.orEmpty()
                     if (phone.isNotBlank()) {
-                        FilledTonalIconButton(
+                        IconButton(
                             onClick = { onCall(phone) },
-                            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                            )
+                            modifier = Modifier.background(KaushalyaColors.Secondary, CircleShape)
                         ) {
-                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = KaushalyaColors.TextPrimary)
                         }
                     }
-                    FilledTonalIconButton(
+                    IconButton(
                         onClick = onChat,
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
-                        )
+                        modifier = Modifier.background(KaushalyaColors.Secondary, CircleShape)
                     ) {
-                        Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                        Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, tint = KaushalyaColors.TextPrimary)
                     }
                 }
             }

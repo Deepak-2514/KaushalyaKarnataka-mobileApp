@@ -2,16 +2,18 @@ package com.kaushalyakarnataka.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.*
-import androidx.compose.foundation.background
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,9 +32,9 @@ import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.data.RequestStatus
 import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.ui.Strings
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
 import com.kaushalyakarnataka.app.ui.components.GradientPrimaryButton
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,18 +65,19 @@ fun RequestsScreen(
     val pending = requests.filter { it.status == RequestStatus.pending }
     val history = requests.filter { it.status != RequestStatus.pending }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(20.dp),
+            contentPadding = PaddingValues(20.dp, 56.dp, 20.dp, 120.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             item {
-                Spacer(Modifier.height(28.dp))
                 Text(
                     text = strings.jobRequests,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.displayLarge,
+                    color = KaushalyaColors.TextPrimary
                 )
             }
 
@@ -82,6 +85,7 @@ fun RequestsScreen(
                 Text(
                     text = "${strings.newRequests} (${pending.size})",
                     style = MaterialTheme.typography.titleLarge,
+                    color = KaushalyaColors.TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -92,7 +96,7 @@ fun RequestsScreen(
                         Text(
                             text = strings.noNewRequests,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = KaushalyaColors.TextMuted
                         )
                     }
                 }
@@ -120,6 +124,7 @@ fun RequestsScreen(
                     Text(
                         text = strings.pastJobs,
                         style = MaterialTheme.typography.titleLarge,
+                        color = KaushalyaColors.TextPrimary,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 12.dp)
                     )
@@ -173,13 +178,14 @@ private fun PendingCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(64.dp)
-                        .clip(CircleShape),
+                        .clip(RoundedCornerShape(14.dp)),
                     contentScale = ContentScale.Crop,
                 )
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = customer?.name ?: strings.customer,
                         style = MaterialTheme.typography.titleMedium,
+                        color = KaushalyaColors.TextPrimary,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -187,28 +193,29 @@ private fun PendingCard(
                     Text(
                         text = customer?.location ?: strings.locationUnknown,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = KaushalyaColors.TextMuted,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        shape = CircleShape
+                        color = KaushalyaColors.Primary.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
-                            text = strings.newLabel,
+                            text = "URGENT",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            color = KaushalyaColors.Primary,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = formatTime(req.createdAt, timeFmt),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KaushalyaColors.TextMuted
                     )
                 }
             }
@@ -216,9 +223,9 @@ private fun PendingCard(
                 OutlinedButton(
                     onClick = onReject,
                     modifier = Modifier.weight(1f).height(48.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = KaushalyaColors.Error),
+                    border = BorderStroke(1.dp, KaushalyaColors.Error.copy(alpha = 0.3f))
                 ) {
                     Icon(Icons.Outlined.Close, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
@@ -253,22 +260,23 @@ private fun HistoryCard(
                 contentDescription = null,
                 modifier = Modifier
                     .size(56.dp)
-                    .clip(CircleShape),
+                    .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop,
             )
             Column(Modifier.weight(1f)) {
                 Text(
                     text = customer?.name ?: strings.customer,
                     style = MaterialTheme.typography.titleMedium,
+                    color = KaushalyaColors.TextPrimary,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 val (statusLabel, statusColor) = when (req.status) {
-                    RequestStatus.accepted -> strings.acceptedStatus to MaterialTheme.colorScheme.primary
-                    RequestStatus.completed -> strings.completed to Color(0xFF34D399)
-                    RequestStatus.rejected -> strings.rejectedStatus to MaterialTheme.colorScheme.error
-                    else -> strings.pendingStatus to MaterialTheme.colorScheme.onSurfaceVariant
+                    RequestStatus.accepted -> strings.acceptedStatus to KaushalyaColors.Primary
+                    RequestStatus.completed -> strings.completed to KaushalyaColors.Success
+                    RequestStatus.rejected -> strings.rejectedStatus to KaushalyaColors.Error
+                    else -> strings.pendingStatus to KaushalyaColors.TextMuted
                 }
                 Text(
                     text = statusLabel,
@@ -281,23 +289,21 @@ private fun HistoryCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     val phone = customer?.phone.orEmpty()
                     if (phone.isNotBlank()) {
-                        FilledTonalIconButton(
+                        IconButton(
                             onClick = { onCall(phone) },
-                            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                            )
+                            modifier = Modifier.background(KaushalyaColors.Secondary, CircleShape)
                         ) {
-                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = KaushalyaColors.TextPrimary)
                         }
                     }
                     onComplete?.let { done ->
                         IconButton(
                             onClick = done,
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                .background(KaushalyaColors.Primary, CircleShape)
                                 .size(40.dp)
                         ) {
-                            Icon(Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
+                            Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White)
                         }
                     }
                 }

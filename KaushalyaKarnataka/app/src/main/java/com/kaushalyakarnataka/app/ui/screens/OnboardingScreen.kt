@@ -18,10 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.data.UserRole
 import com.kaushalyakarnataka.app.ui.Strings
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
-import com.kaushalyakarnataka.app.ui.components.GlassCard
 import com.kaushalyakarnataka.app.ui.components.GradientPrimaryButton
 import com.kaushalyakarnataka.app.ui.components.KKTextField
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import kotlinx.coroutines.launch
 
 private val WORK_CATEGORIES = listOf(
@@ -46,7 +45,9 @@ fun OnboardingScreen(
     var submitting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
@@ -56,21 +57,21 @@ fun OnboardingScreen(
             Spacer(Modifier.height(64.dp))
             
             Text(
-                text = "Welcome to",
+                text = "Personalize your experience",
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                color = KaushalyaColors.TextSecondary
             )
             Text(
-                text = strings.appName,
+                text = "Welcome to ${strings.appName}",
                 style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
+                fontWeight = FontWeight.Bold,
+                color = KaushalyaColors.TextPrimary
             )
             
             Spacer(Modifier.height(40.dp))
 
-            SectionTitle("Choose your role")
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SectionTitle("Identify your role")
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 RoleCard(
                     modifier = Modifier.weight(1f),
                     label = strings.roleCustomer,
@@ -87,13 +88,13 @@ fun OnboardingScreen(
 
             if (role != null) {
                 Spacer(Modifier.height(32.dp))
-                SectionTitle("Your Details")
+                SectionTitle("Basic Information")
                 KKTextField(
                     value = phone,
                     onValueChange = { phone = it.filter { ch -> ch.isDigit() }.take(10) },
                     label = strings.phone,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    placeholder = "10-digit mobile number"
+                    placeholder = "10-digit primary contact"
                 )
                 
                 Spacer(Modifier.height(16.dp))
@@ -102,34 +103,38 @@ fun OnboardingScreen(
                     value = location,
                     onValueChange = { location = it },
                     label = strings.location,
-                    placeholder = "City or Neighborhood"
+                    placeholder = "Your current city/area"
                 )
 
                 if (role == UserRole.worker) {
                     Spacer(Modifier.height(32.dp))
-                    SectionTitle("Professional Category")
+                    SectionTitle("Professional Vertical")
                     
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         WORK_CATEGORIES.forEach { cat ->
                             FilterChip(
                                 selected = category == cat,
                                 onClick = { category = cat },
                                 label = { Text(strings.categories.label(cat)) },
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = Color.White,
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    selectedContainerColor = KaushalyaColors.Primary.copy(alpha = 0.2f),
+                                    selectedLabelColor = KaushalyaColors.Primary,
+                                    containerColor = KaushalyaColors.Secondary,
+                                    labelColor = KaushalyaColors.TextSecondary
                                 ),
-                                border = if (category == cat) null else FilterChipDefaults.filterChipBorder(
+                                border = FilterChipDefaults.filterChipBorder(
                                     enabled = true,
-                                    selected = false,
-                                    borderColor = MaterialTheme.colorScheme.outline
+                                    selected = category == cat,
+                                    borderColor = if (category == cat) KaushalyaColors.Primary else KaushalyaColors.Border,
+                                    selectedBorderColor = KaushalyaColors.Primary,
+                                    disabledBorderColor = KaushalyaColors.Border,
+                                    borderWidth = 1.dp,
+                                    selectedBorderWidth = 1.dp
                                 )
                             )
                         }
@@ -140,7 +145,7 @@ fun OnboardingScreen(
             Spacer(Modifier.height(64.dp))
 
             GradientPrimaryButton(
-                text = "Complete Profile",
+                text = "Initialize Profile",
                 onClick = click@{
                     val r = role ?: return@click
                     if (phone.length != 10 || location.isBlank()) {
@@ -155,7 +160,7 @@ fun OnboardingScreen(
                     scope.launch {
                         val fields = mutableMapOf<String, Any>(
                             "userId" to uid,
-                            "name" to (authDisplayName ?: "Professional User"),
+                            "name" to (authDisplayName ?: "Verified Member"),
                             "role" to r.name,
                             "phone" to phone,
                             "location" to location,
@@ -169,7 +174,7 @@ fun OnboardingScreen(
                             repo.mergeUserProfile(uid, fields)
                             onDone()
                         } catch (e: Exception) {
-                            onMessage(e.localizedMessage ?: "Setup failed")
+                            onMessage(e.localizedMessage ?: "Deployment failed")
                         } finally {
                             submitting = false
                         }
@@ -179,7 +184,7 @@ fun OnboardingScreen(
                 enabled = role != null,
             )
             
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(48.dp))
         }
     }
 }
@@ -189,26 +194,27 @@ private fun SectionTitle(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
+        color = KaushalyaColors.TextPrimary,
         modifier = Modifier.padding(bottom = 12.dp)
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RoleCard(modifier: Modifier, label: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f),
-        border = BorderStroke(if (isSelected) 2.dp else 1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+        shape = RoundedCornerShape(16.dp),
+        color = if (isSelected) KaushalyaColors.Primary.copy(alpha = 0.1f) else KaushalyaColors.Secondary,
+        border = BorderStroke(1.dp, if (isSelected) KaushalyaColors.Primary else KaushalyaColors.Border),
+        shadowElevation = if (isSelected) 4.dp else 0.dp
     ) {
         Box(Modifier.padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isSelected) KaushalyaColors.Primary else KaushalyaColors.TextSecondary,
                 fontWeight = FontWeight.Bold
             )
         }

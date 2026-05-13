@@ -3,11 +3,13 @@ package com.kaushalyakarnataka.app.ui.screens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.rounded.ElectricBolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,8 +29,8 @@ import com.google.android.gms.common.api.ApiException
 import com.kaushalyakarnataka.app.BuildConfig
 import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.ui.Strings
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import com.kaushalyakarnataka.app.ui.util.findActivity
 import kotlinx.coroutines.launch
 
@@ -78,7 +80,9 @@ fun LoginScreen(
         }
     }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
@@ -88,16 +92,17 @@ fun LoginScreen(
         ) {
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(32.dp))
-                    .background(Brush.linearGradient(listOf(Color(0xFF4F46E5), Color(0xFF8B5CF6)))),
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(KaushalyaColors.Primary.copy(alpha = 0.1f))
+                    .border(androidx.compose.foundation.BorderStroke(1.dp, KaushalyaColors.Primary.copy(alpha = 0.3f)), RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Outlined.AutoAwesome,
+                    Icons.Rounded.ElectricBolt,
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(48.dp),
+                    tint = KaushalyaColors.Primary,
+                    modifier = Modifier.size(40.dp),
                 )
             }
             
@@ -106,13 +111,14 @@ fun LoginScreen(
             Text(
                 strings.appName,
                 style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.ExtraBold,
+                color = KaushalyaColors.TextPrimary,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Text(
-                strings.tagline,
+                "Your premium marketplace for skilled experts",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = KaushalyaColors.TextSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -122,16 +128,17 @@ fun LoginScreen(
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "Welcome Back",
+                        "Step into the future",
                         style = MaterialTheme.typography.titleLarge,
+                        color = KaushalyaColors.TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "Sign in to continue to your professional marketplace",
+                        "Sign in to access global-standard services",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = KaushalyaColors.TextMuted,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                        modifier = Modifier.padding(top = 6.dp, bottom = 28.dp)
                     )
 
                     Button(
@@ -141,24 +148,25 @@ fun LoginScreen(
                             isSigningIn = true
                             launcher.launch(client.signInIntent)
                         },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = KaushalyaColors.Primary,
                             contentColor = Color.White,
-                        )
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                     ) {
                         if (isSigningIn) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(24.dp)) {
+                                Surface(shape = CircleShape, color = Color.White, modifier = Modifier.size(20.dp)) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Text("G", color = Color(0xFF4285F4), fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                        Text("G", color = Color(0xFF4285F4), fontWeight = FontWeight.Black, fontSize = 10.sp)
                                     }
                                 }
                                 Spacer(Modifier.width(12.dp))
-                                Text("Continue with Google", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                Text("Sign in with Google", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -168,11 +176,10 @@ fun LoginScreen(
             Spacer(Modifier.height(48.dp))
             
             Text(
-                "By signing in, you agree to our Terms and Privacy Policy",
+                "Premium • Secure • Verified Experts",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                color = KaushalyaColors.TextMuted,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 20.dp)
             )
         }
     }

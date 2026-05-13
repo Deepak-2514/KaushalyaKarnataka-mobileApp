@@ -1,6 +1,7 @@
 package com.kaushalyakarnataka.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,8 +30,8 @@ import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.data.UserRole
 import com.kaushalyakarnataka.app.ui.Strings
 import com.kaushalyakarnataka.app.ui.categoryTitle
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,12 +57,14 @@ fun ChatsScreen(
 
     val tf = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(56.dp))
             
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -68,25 +72,25 @@ fun ChatsScreen(
                     Text(
                         text = strings.messages,
                         style = MaterialTheme.typography.displayLarge,
+                        color = KaushalyaColors.TextPrimary
                     )
                     if (chats.isNotEmpty()) {
                         Text(
-                            text = "${chats.size} Active Conversations",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                            text = "${chats.size} Active Connections",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = KaushalyaColors.Primary,
                         )
                     }
                 }
                 IconButton(
                     onClick = {},
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), CircleShape)
+                    modifier = Modifier.background(KaushalyaColors.Secondary, CircleShape)
                 ) {
-                    Icon(Icons.Outlined.Search, contentDescription = null)
+                    Icon(Icons.Rounded.Search, contentDescription = null, tint = KaushalyaColors.TextPrimary)
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
 
             if (chats.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -95,8 +99,8 @@ fun ChatsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp, 0.dp, 16.dp, 100.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(20.dp, 0.dp, 20.dp, 120.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     items(chats, key = { it.chatId }) { chat ->
                         val otherId = chat.participants.firstOrNull { it != profile.userId }
@@ -138,19 +142,19 @@ private fun ChatRowModern(
                     contentDescription = null,
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(CircleShape),
+                        .clip(RoundedCornerShape(14.dp)),
                     contentScale = ContentScale.Crop,
                 )
-                // Online Indicator (Dummy)
+                // Online Indicator
                 Box(
                     modifier = Modifier
-                        .size(14.dp)
+                        .size(12.dp)
                         .clip(CircleShape)
-                        .background(Color.Black)
+                        .background(KaushalyaColors.Background)
                         .padding(2.dp)
                         .align(Alignment.BottomEnd)
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(Color(0xFF10B981)))
+                    Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(KaushalyaColors.Success))
                 }
             }
             Column(Modifier.weight(1f)) {
@@ -159,8 +163,14 @@ private fun ChatRowModern(
                         text = other?.name ?: strings.loading,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
+                        color = KaushalyaColors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = "12:30", // Placeholder for timestamp
+                        style = MaterialTheme.typography.labelSmall,
+                        color = KaushalyaColors.TextMuted
                     )
                 }
                 Spacer(Modifier.height(2.dp))
@@ -172,9 +182,9 @@ private fun ChatRowModern(
                     }
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.labelMedium,
+                        color = KaushalyaColors.Primary,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -188,19 +198,20 @@ private fun EmptyChatsState() {
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.Chat,
             contentDescription = null,
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+            modifier = Modifier.size(64.dp),
+            tint = KaushalyaColors.TextMuted.copy(alpha = 0.2f)
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
         Text(
-            text = "Your inbox is empty",
+            text = "Your inbox is silent",
             style = MaterialTheme.typography.titleLarge,
+            color = KaushalyaColors.TextSecondary,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Conversations with workers will appear here",
+            text = "Messages from experts will appear here",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = KaushalyaColors.TextMuted,
             textAlign = TextAlign.Center
         )
     }

@@ -1,22 +1,17 @@
 package com.kaushalyakarnataka.app.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,10 +31,10 @@ import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.ui.AppLanguage
 import com.kaushalyakarnataka.app.ui.Strings
 import com.kaushalyakarnataka.app.ui.categoryTitle
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.GlassCard
 import com.kaushalyakarnataka.app.ui.components.KKTextField
 import com.kaushalyakarnataka.app.ui.components.ScreenLoading
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 
 private val HOME_CATEGORIES = listOf(
     "All", "Electrician", "Plumber", "Carpenter", "Painter", "Cleaner", "Gardener", "Other",
@@ -66,32 +61,33 @@ fun HomeScreen(
         loading = false
     }
 
-    GalaxyBackground {
+    Scaffold(
+        containerColor = KaushalyaColors.Background
+    ) { padding ->
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 20.dp)
         ) {
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(56.dp))
             
-            HeaderSection(profile, strings, onToggleLanguage, onRefresh = { tick++ })
+            HeaderSection(profile, strings, onRefresh = { tick++ })
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
 
             KKTextField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = "Search electricians, plumbers...",
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                placeholder = "Find your next expert...",
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = KaushalyaColors.Primary) },
                 trailingIcon = {
-                    Row {
-                        IconButton(onClick = {}) { Icon(Icons.Rounded.Mic, contentDescription = null) }
-                        IconButton(onClick = {}) { Icon(Icons.Rounded.FilterList, contentDescription = null) }
+                    IconButton(onClick = {}) { 
+                        Icon(Icons.Rounded.Tune, contentDescription = null, tint = KaushalyaColors.TextSecondary) 
                     }
                 }
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
 
             CategorySelector(category, strings, onCategorySelected = { category = it })
 
@@ -110,16 +106,18 @@ fun HomeScreen(
             } else if (filtered.isEmpty()) {
                 EmptyState(strings.noWorkers)
             } else {
-                Text(
-                    text = "Top Professionals",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 100.dp),
+                    contentPadding = PaddingValues(bottom = 120.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    item {
+                        Text(
+                            text = "Featured Experts",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = KaushalyaColors.TextPrimary
+                        )
+                    }
                     items(filtered, key = { it.userId }) { worker ->
                         WorkerHorizontalCard(strings, worker, onOpenWorker)
                     }
@@ -133,7 +131,6 @@ fun HomeScreen(
 private fun HeaderSection(
     profile: UserProfile?,
     strings: Strings,
-    onToggleLanguage: () -> Unit,
     onRefresh: () -> Unit
 ) {
     Row(
@@ -142,9 +139,10 @@ private fun HeaderSection(
     ) {
         Box(
             modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .size(52.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(KaushalyaColors.Secondary)
+                .border(BorderStroke(1.dp, KaushalyaColors.Border), RoundedCornerShape(14.dp))
         ) {
             AsyncImage(
                 model = profile?.profileImage,
@@ -153,22 +151,28 @@ private fun HeaderSection(
                 contentScale = ContentScale.Crop
             )
         }
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {
-            val first = profile?.name?.split(" ")?.firstOrNull() ?: "User"
+            val first = profile?.name?.split(" ")?.firstOrNull() ?: "there"
             Text(
-                "${strings.hello}, $first",
+                "Good Morning, $first",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
+                color = KaushalyaColors.TextPrimary
             )
             Text(
-                strings.tagline,
+                "Find professional help today",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = KaushalyaColors.TextSecondary,
             )
         }
-        IconButton(onClick = onRefresh) {
-            Icon(Icons.Rounded.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+        IconButton(
+            onClick = onRefresh,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(KaushalyaColors.Secondary)
+        ) {
+            Icon(Icons.Rounded.Notifications, contentDescription = null, tint = KaushalyaColors.TextPrimary)
         }
     }
 }
@@ -179,13 +183,11 @@ private fun CategorySelector(
     strings: Strings,
     onCategorySelected: (String?) -> Unit
 ) {
-    Row(
-        Modifier
-            .horizontalScroll(rememberScrollState())
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        HOME_CATEGORIES.forEach { cat ->
+        items(HOME_CATEGORIES) { cat ->
             val isSelected = (selectedCategory == null && cat == "All") || selectedCategory == cat
             CategoryChip(
                 label = strings.categories.label(cat),
@@ -206,29 +208,28 @@ private fun CategoryChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-        border = if (isSelected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) KaushalyaColors.Primary.copy(alpha = 0.15f) else KaushalyaColors.Secondary,
+        border = BorderStroke(1.dp, if (isSelected) KaushalyaColors.Primary.copy(alpha = 0.5f) else KaushalyaColors.Border)
     ) {
         Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
         ) {
             if (icon != null) {
                 Icon(
                     icon, 
                     contentDescription = null, 
-                    modifier = Modifier.size(18.dp),
-                    tint = if (isSelected) Color.White else MaterialTheme.colorScheme.primary
+                    modifier = Modifier.size(16.dp),
+                    tint = if (isSelected) KaushalyaColors.Primary else KaushalyaColors.TextMuted
                 )
                 Spacer(Modifier.width(8.dp))
             }
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelLarge,
-                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                color = if (isSelected) KaushalyaColors.Primary else KaushalyaColors.TextSecondary,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
             )
         }
     }
@@ -248,20 +249,20 @@ private fun getCategoryIcon(cat: String): ImageVector? = when (cat) {
 @Composable
 private fun EmptyState(message: String) {
     Column(
-        Modifier.fillMaxWidth().padding(top = 40.dp),
+        Modifier.fillMaxWidth().padding(top = 60.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            Icons.Outlined.SearchOff, 
+            Icons.Rounded.SearchOff, 
             contentDescription = null, 
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            tint = KaushalyaColors.TextMuted.copy(alpha = 0.5f)
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
         Text(
             message,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = KaushalyaColors.TextSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -282,26 +283,27 @@ private fun WorkerHorizontalCard(strings: Strings, worker: UserProfile, onOpenWo
                     model = worker.profileImage,
                     contentDescription = worker.name,
                     modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop,
                 )
                 Surface(
-                    modifier = Modifier.align(Alignment.TopStart).padding(6.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Black.copy(alpha = 0.6f)
+                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color.Black.copy(alpha = 0.7f)
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(12.dp))
+                        Icon(Icons.Filled.Star, contentDescription = null, tint = KaushalyaColors.Warning, modifier = Modifier.size(10.dp))
                         Text(
                             if (worker.rating > 0) String.format("%.1f", worker.rating) else "New",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
                         )
                     }
                 }
@@ -311,49 +313,55 @@ private fun WorkerHorizontalCard(strings: Strings, worker: UserProfile, onOpenWo
                     Text(
                         worker.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        color = KaushalyaColors.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Outlined.Verified, contentDescription = "Verified", tint = Color(0xFF3B82F6), modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.Rounded.Verified, contentDescription = "Verified", tint = KaushalyaColors.Primary, modifier = Modifier.size(14.dp))
                 }
                 Text(
                     strings.categoryTitle(worker.category ?: ""),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = KaushalyaColors.Primary,
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Outlined.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Rounded.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = KaushalyaColors.TextMuted)
                     Text(
                         worker.location.ifBlank { strings.locationUnknown },
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = KaushalyaColors.TextMuted,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Jobs Done", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${worker.jobsCompleted}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
-                    }
-                    Button(
-                        onClick = { onOpenWorker(worker.userId) },
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text("Hire Now", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                    }
-                }
+            }
+            IconButton(onClick = {}) {
+                Icon(Icons.Outlined.BookmarkBorder, contentDescription = null, tint = KaushalyaColors.TextMuted)
+            }
+        }
+        
+        Spacer(Modifier.height(16.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text("Jobs Completed", style = MaterialTheme.typography.labelSmall, color = KaushalyaColors.TextMuted)
+                Text("${worker.jobsCompleted}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = KaushalyaColors.TextPrimary)
+            }
+            Button(
+                onClick = { onOpenWorker(worker.userId) },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = KaushalyaColors.Primary),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                modifier = Modifier.height(36.dp)
+            ) {
+                Text("Hire Expert", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
             }
         }
     }

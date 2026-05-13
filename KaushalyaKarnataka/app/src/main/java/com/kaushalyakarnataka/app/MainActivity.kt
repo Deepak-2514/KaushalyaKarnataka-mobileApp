@@ -48,6 +48,7 @@ import com.kaushalyakarnataka.app.ui.screens.ChatsScreen
 import com.kaushalyakarnataka.app.ui.screens.DashboardScreen
 import com.kaushalyakarnataka.app.ui.screens.HomeScreen
 import com.kaushalyakarnataka.app.ui.screens.LoginScreen
+import com.kaushalyakarnataka.app.ui.screens.ManageServicesScreen
 import com.kaushalyakarnataka.app.ui.screens.MyHiresScreen
 import com.kaushalyakarnataka.app.ui.screens.OnboardingScreen
 import com.kaushalyakarnataka.app.ui.screens.ProfileScreen
@@ -65,6 +66,7 @@ private object Routes {
     const val REQUESTS = "requests"
     const val CHATS = "chats"
     const val PROFILE = "profile"
+    const val MANAGE_SERVICES = "manage_services"
     const val WORKER = "worker/{workerId}"
     const val CHAT = "chat/{chatId}"
 }
@@ -90,7 +92,8 @@ class MainActivity : ComponentActivity() {
                 }
 
                 Scaffold(
-                    snackbarHost = { SnackbarHost(snackbar) }
+                    snackbarHost = { SnackbarHost(snackbar) },
+                    containerColor = MaterialTheme.colorScheme.background
                 ) { padding ->
                     Box(Modifier.padding(padding)) {
                         when {
@@ -153,15 +156,15 @@ private fun LoadingState(label: String) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp
+                modifier = Modifier.size(32.dp),
+                color = KaushalyaColors.Primary,
+                strokeWidth = 2.dp
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = KaushalyaColors.TextSecondary
             )
         }
     }
@@ -209,13 +212,14 @@ private fun MainShell(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 20.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .navigationBarsPadding()
                 ) {
                     Surface(
-                        color = Color(0xF20F172A), // rgba(15, 23, 42, 0.95)
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, Color(0x14FFFFFF)),
-                        shadowElevation = 16.dp,
+                        color = KaushalyaColors.NavBackground,
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, KaushalyaColors.Border),
+                        shadowElevation = 12.dp,
                         modifier = Modifier.height(72.dp)
                     ) {
                         Row(
@@ -242,16 +246,17 @@ private fun MainShell(
                                     Icon(
                                         imageVector = tab.icon,
                                         contentDescription = tab.label,
-                                        tint = if (selected) MaterialTheme.colorScheme.primary else Color(0xFF94A3B8),
-                                        modifier = Modifier.size(if (selected) 28.dp else 24.dp)
+                                        tint = if (selected) KaushalyaColors.Primary else KaushalyaColors.UnselectedTab,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                     if (selected) {
-                                        Spacer(Modifier.height(4.dp))
+                                        Spacer(Modifier.height(6.dp))
                                         Box(
                                             modifier = Modifier
-                                                .size(4.dp)
-                                                .clip(CircleShape)
-                                                .background(MaterialTheme.colorScheme.primary)
+                                                .width(12.dp)
+                                                .height(3.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(KaushalyaColors.Primary)
                                         )
                                     }
                                 }
@@ -315,7 +320,16 @@ private fun MainShell(
                     repo = repo,
                     onToggleLanguage = onLanguageToggle,
                     onSignOut = onSignOut,
+                    onManageServices = { navController.navigate(Routes.MANAGE_SERVICES) },
                     onMessage = onToast,
+                )
+            }
+            composable(Routes.MANAGE_SERVICES) {
+                ManageServicesScreen(
+                    repo = repo,
+                    strings = strings,
+                    onBack = { navController.popBackStack() },
+                    onMessage = onToast
                 )
             }
             composable(

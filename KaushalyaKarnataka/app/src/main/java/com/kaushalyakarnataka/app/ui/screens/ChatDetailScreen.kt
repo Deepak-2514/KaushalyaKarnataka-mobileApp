@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -31,8 +32,8 @@ import com.kaushalyakarnataka.app.data.ChatMessage
 import com.kaushalyakarnataka.app.data.KaushalyaRepository
 import com.kaushalyakarnataka.app.data.UserProfile
 import com.kaushalyakarnataka.app.ui.Strings
-import com.kaushalyakarnataka.app.ui.components.GalaxyBackground
 import com.kaushalyakarnataka.app.ui.components.KKTextField
+import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -66,6 +67,7 @@ fun ChatDetailScreen(
     }
 
     Scaffold(
+        containerColor = KaushalyaColors.Background,
         topBar = {
             TopAppBar(
                 title = {
@@ -78,7 +80,7 @@ fun ChatDetailScreen(
                             contentDescription = null,
                             modifier = Modifier
                                 .size(40.dp)
-                                .clip(CircleShape),
+                                .clip(RoundedCornerShape(10.dp)),
                             contentScale = ContentScale.Crop
                         )
                         Spacer(Modifier.width(12.dp))
@@ -87,21 +89,21 @@ fun ChatDetailScreen(
                                 text = uiState.otherUser?.name ?: strings.loading,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground,
+                                color = KaushalyaColors.TextPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Text(
-                                text = strings.activeChat,
+                                text = "Active Now",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = KaushalyaColors.Success,
                             )
                         }
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null, tint = KaushalyaColors.TextPrimary)
                     }
                 },
                 actions = {
@@ -112,27 +114,25 @@ fun ChatDetailScreen(
                                 context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")))
                             }
                         }) {
-                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Outlined.Phone, contentDescription = null, tint = KaushalyaColors.Primary)
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
+                    containerColor = KaushalyaColors.Background,
+                    titleContentColor = KaushalyaColors.TextPrimary,
                 )
             )
         },
         bottomBar = {
             Surface(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-                tonalElevation = 8.dp,
+                color = KaushalyaColors.Background,
                 modifier = Modifier.imePadding()
             ) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(horizontal = 16.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     KKTextField(
@@ -150,39 +150,36 @@ fun ChatDetailScreen(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
-                            .background(if (uiState.draft.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                            .background(if (uiState.draft.isNotBlank()) KaushalyaColors.Primary else KaushalyaColors.Secondary)
                     ) {
                         if (uiState.isSending) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = Color.White
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Outlined.Send,
                                 contentDescription = null,
-                                tint = if (uiState.draft.isNotBlank()) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                tint = if (uiState.draft.isNotBlank()) Color.White else KaushalyaColors.TextMuted
                             )
                         }
                     }
                 }
             }
-        },
-        containerColor = Color.Transparent
+        }
     ) { padding ->
-        GalaxyBackground {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                state = listState
-            ) {
-                items(items = messages, key = { it.messageId }) { msg ->
-                    MessageBubble(msg, profile.userId, tf)
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            state = listState
+        ) {
+            items(items = messages, key = { it.messageId }) { msg ->
+                MessageBubble(msg, profile.userId, tf)
             }
         }
     }
@@ -192,13 +189,13 @@ fun ChatDetailScreen(
 private fun MessageBubble(msg: ChatMessage, selfId: String, tf: SimpleDateFormat) {
     val isMine = msg.senderId == selfId
     val alignment = if (isMine) Alignment.CenterEnd else Alignment.CenterStart
-    val bgColor = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val textColor = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = if (isMine) KaushalyaColors.Primary else KaushalyaColors.Secondary
+    val textColor = if (isMine) Color.White else KaushalyaColors.TextPrimary
     val shape = RoundedCornerShape(
-        topStart = 20.dp,
-        topEnd = 20.dp,
-        bottomStart = if (isMine) 20.dp else 4.dp,
-        bottomEnd = if (isMine) 4.dp else 20.dp
+        topStart = 16.dp,
+        topEnd = 16.dp,
+        bottomStart = if (isMine) 16.dp else 4.dp,
+        bottomEnd = if (isMine) 4.dp else 16.dp
     )
 
     Box(
@@ -208,21 +205,21 @@ private fun MessageBubble(msg: ChatMessage, selfId: String, tf: SimpleDateFormat
         Surface(
             color = bgColor,
             shape = shape,
-            tonalElevation = 2.dp,
             modifier = Modifier.widthIn(max = 280.dp)
         ) {
-            Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                 Text(
                     text = msg.message,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = textColor
+                    color = textColor,
+                    lineHeight = 20.sp
                 )
                 Spacer(Modifier.height(4.dp))
                 val time = msg.timestamp?.toDate()?.let { tf.format(it) } ?: ""
                 Text(
                     text = time,
                     style = MaterialTheme.typography.labelSmall,
-                    color = textColor.copy(alpha = 0.7f),
+                    color = textColor.copy(alpha = 0.6f),
                     modifier = Modifier.align(Alignment.End)
                 )
             }

@@ -1,29 +1,30 @@
 package com.kaushalyakarnataka.app.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kaushalyakarnataka.app.ui.theme.KaushalyaColors
 
+/**
+ * A SaaS-style premium card component with matte background and subtle borders.
+ */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val containerColor = KaushalyaColors.GlassSurface
-    val borderStroke = BorderStroke(1.dp, KaushalyaColors.GlassOutline)
-    val shape = RoundedCornerShape(24.dp)
+    val containerColor = KaushalyaColors.Surface
+    val borderStroke = BorderStroke(1.dp, KaushalyaColors.Border)
+    val shape = RoundedCornerShape(16.dp)
 
     if (onClick != null) {
         Surface(
@@ -32,7 +33,7 @@ fun GlassCard(
             shape = shape,
             color = containerColor,
             border = borderStroke,
-            shadowElevation = 8.dp,
+            shadowElevation = 2.dp,
             tonalElevation = 0.dp
         ) {
             Column(
@@ -46,7 +47,7 @@ fun GlassCard(
             shape = shape,
             color = containerColor,
             border = borderStroke,
-            shadowElevation = 8.dp,
+            shadowElevation = 2.dp,
             tonalElevation = 0.dp
         ) {
             Column(
@@ -57,6 +58,9 @@ fun GlassCard(
     }
 }
 
+/**
+ * A modern solid SaaS button with minimal style and soft corners.
+ */
 @Composable
 fun GradientPrimaryButton(
     text: String,
@@ -70,43 +74,33 @@ fun GradientPrimaryButton(
         enabled = enabled && !loading,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(16.dp),
+            .height(52.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
+            containerColor = KaushalyaColors.Primary,
             contentColor = Color.White,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = Color.White.copy(alpha = 0.38f),
+            disabledContainerColor = KaushalyaColors.Primary.copy(alpha = 0.4f),
+            disabledContentColor = Color.White.copy(alpha = 0.6f),
         ),
-        contentPadding = PaddingValues(0.dp),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 2.dp
+        )
     ) {
-        val brush = if (enabled) {
-            Brush.horizontalGradient(listOf(Color(0xFF4F46E5), Color(0xFF8B5CF6)))
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = Color.White,
+                strokeWidth = 2.dp,
+            )
         } else {
-            Brush.horizontalGradient(listOf(Color(0xFF2E2A85), Color(0xFF4C3286)))
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(brush),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp,
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp
                 )
-            } else {
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
-                    )
-                )
-            }
+            )
         }
     }
 }
@@ -119,20 +113,23 @@ fun ScreenLoading(modifier: Modifier = Modifier, label: String) {
             modifier = Modifier.padding(24.dp),
         ) {
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 3.dp,
-                modifier = Modifier.size(40.dp)
+                color = KaushalyaColors.Primary,
+                strokeWidth = 2.dp,
+                modifier = Modifier.size(32.dp)
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                color = KaushalyaColors.TextSecondary,
             )
         }
     }
 }
 
+/**
+ * A modern SaaS text field with dark elevated surface and minimal border.
+ */
 @Composable
 fun KKTextField(
     value: String,
@@ -151,20 +148,23 @@ fun KKTextField(
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
         label = label?.let { { Text(it) } },
-        placeholder = placeholder?.let { { Text(it, style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))) } },
+        placeholder = placeholder?.let { { Text(it, style = MaterialTheme.typography.bodyMedium.copy(color = KaushalyaColors.TextMuted)) } },
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         singleLine = singleLine,
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f),
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = Color.Transparent,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            focusedContainerColor = KaushalyaColors.Elevated,
+            unfocusedContainerColor = KaushalyaColors.Secondary,
+            focusedBorderColor = KaushalyaColors.Primary.copy(alpha = 0.5f),
+            unfocusedBorderColor = KaushalyaColors.Border,
+            focusedLabelColor = KaushalyaColors.Primary,
+            unfocusedLabelColor = KaushalyaColors.TextSecondary,
+            cursorColor = KaushalyaColors.Primary,
+            focusedTextColor = KaushalyaColors.TextPrimary,
+            unfocusedTextColor = KaushalyaColors.TextPrimary
         )
     )
 }

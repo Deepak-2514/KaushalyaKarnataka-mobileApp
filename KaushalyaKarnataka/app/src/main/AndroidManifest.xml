@@ -6,9 +6,9 @@
     <application
         android:name=".KaushalyaApplication"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/images"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_launcher_foreground"
+        android:roundIcon="@drawable/images"
         android:supportsRtl="true"
         android:theme="@style/Theme.KaushalyaKarnataka">
         <activity
