@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,19 +17,21 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        val lp = rootProject.layout.projectDirectory.file("local.properties").asFile
-        val webClientId = if (lp.exists()) {
-            lp.readLines().firstOrNull { it.startsWith("WEB_CLIENT_ID=") }
-                ?.substringAfter("=")?.trim().orEmpty()
-        } else ""
+        val properties = Properties()
+        val propertiesFile = rootProject.layout.projectDirectory.file("local.properties").asFile
+        if (propertiesFile.exists()) {
+            propertiesFile.inputStream().use { properties.load(it) }
+        }
 
-        buildConfigField("String", "FIREBASE_API_KEY", "\"\${localProp(\"FIREBASE_API_KEY\")}\"")
-        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"\${'localProp(\"FIREBASE_PROJECT_ID\")}\"")
-        buildConfigField("String", "FIREBASE_APP_ID", "\"\${localProp(\"FIREBASE_APP_ID\")}\"")
-        buildConfigField("String", "FIREBASE_STORAGE_BUCKET", "\"\${localProp(\"FIREBASE_STORAGE_BUCKET\")}\"")
+        fun localProp(key: String): String = properties.getProperty(key) ?: ""
+
+        buildConfigField("String", "FIREBASE_API_KEY", "\"${localProp("FIREBASE_API_KEY")}\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${localProp("FIREBASE_PROJECT_ID")}\"")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"${localProp("FIREBASE_APP_ID")}\"")
+        buildConfigField("String", "FIREBASE_STORAGE_BUCKET", "\"${localProp("FIREBASE_STORAGE_BUCKET")}\"")
         // Setting this to (default) as it's the standard for almost all projects
         buildConfigField("String", "FIRESTORE_DATABASE_ID", "\"(default)\"")
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProp("WEB_CLIENT_ID")}\"")
     }
 
     buildTypes {
