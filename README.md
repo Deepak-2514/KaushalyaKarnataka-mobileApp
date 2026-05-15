@@ -65,7 +65,7 @@ Households and businesses:
 
 ---
 
-## 📸 App Workflow
+## 📸 App Workflow.
 
 > *Login → Home → Worker Profile → Chat → Requests*
 
