@@ -29,7 +29,7 @@ Households and businesses:
 - ❌ Have **no way to communicate** before hiring
 - ❌ Have **no review system** to judge quality
 
-**Kaushalya Karnataka solves all of this** in one app. ✅
+**Kaushalya Karnataka solves all of this** in one app. 
 
 ---
 
